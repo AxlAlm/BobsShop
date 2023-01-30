@@ -3,6 +3,18 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# any zip file
+*.zip
+
+# terraform state (can contain secrets etc)
+*.tfstate*
+
+# aws
+aws/
+
+# terraform
+.terraform/
+
 # C extensions
 *.so
 
