@@ -1,15 +1,16 @@
 
-variable "name" {
-  type        = string
-  description = "Name of the function"
+variable "names" {
+  type        = list(string)
+  description = "Names of the function"
 }
 
-variable "runtime" {
-  type        = string
-  description = "runtime env, e.g. python python3.9"
+variable "runtimes" {
+  type        = list(string)
+  description = "runtime envs, e.g. [python3.9]"
 
 }
 
-variable "source_dir" {
-  type = string
+variable "source_dirs" {
+  type        = list(string)
+  description = "directories of the code"
 }

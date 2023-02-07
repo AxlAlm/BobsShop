@@ -27,10 +27,14 @@ provider "aws" {
 
 
 
-# module "example" {
-#   source = "./terraform-test-module"
+module "test_lambda" {
+  source = "./modules/lambda"
 
-#   providers = {
-#     aws.nested_provider_alias = aws.stockholm
-#   }
-# }
+  names       = ["test_lambda"]
+  source_dirs = ["../src/"]
+  runtimes    = ["python3.9"]
+
+  # providers = {
+  #   aws.nested_provider_alias = aws.stockholm
+  # }
+}
