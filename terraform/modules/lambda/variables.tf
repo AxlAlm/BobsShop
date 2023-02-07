@@ -1,4 +1,9 @@
 
+variable "service_name" {
+  type        = string
+  description = "name of the service"
+}
+
 variable "names" {
   type        = list(string)
   description = "Names of the function"

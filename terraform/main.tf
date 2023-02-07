@@ -30,9 +30,10 @@ provider "aws" {
 module "test_lambda" {
   source = "./modules/lambda"
 
-  names       = ["test_lambda"]
-  source_dirs = ["../src/"]
-  runtimes    = ["python3.9"]
+  service_name = "test_service"
+  names        = ["test_lambda"]
+  source_dirs  = ["../src/"]
+  runtimes     = ["python3.9"]
 
   # providers = {
   #   aws.nested_provider_alias = aws.stockholm

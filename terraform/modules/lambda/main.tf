@@ -1,9 +1,8 @@
 
 
 resource "aws_iam_role" "lambda_role" {
-  name = "bs_Lambda_Function_Role"
-  # Terraform's "jsonencode" function converts a
-  # Terraform expression result to valid JSON syntax.
+  count = length(var.names)
+  name  = "bs_${var.names[count.index]}_Lambda_Function_Role"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -19,34 +18,21 @@ resource "aws_iam_role" "lambda_role" {
   })
 }
 
-resource "aws_iam_policy" "iam_policy_for_lambda" {
-  name        = "aws_iam_policy_for_terraform_aws_lambda_role"
-  path        = "/"
-  description = "AWS IAM Policy for managing aws lambda role"
-
-  # Terraform's "jsonencode" function converts a
-  # Terraform expression result to valid JSON syntax.
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = [
-          "logs:CreateLogGroup",
-          "logs:CreateLogStream",
-          "logs:PutLogEvents"
-        ],
-        Effect   = "Allow"
-        Resource = "*"
-      },
-    ]
-  })
+# create a log group to store log messages
+# https://developer.hashicorp.com/terraform/tutorials/aws/lambda-api-gateway
+resource "aws_cloudwatch_log_group" "log_group" {
+  count             = length(var.names)
+  name              = "/aws/lambda/${var.names[count.index]}"
+  retention_in_days = 30
 }
 
-resource "aws_iam_role_policy_attachment" "attach_iam_policy_to_iam_role" {
-  role       = aws_iam_role.lambda_role.name
-  policy_arn = aws_iam_policy.iam_policy_for_lambda.arn
+# basic policy that allows lambdas to write to CloudWatch logs
+# https://developer.hashicorp.com/terraform/tutorials/aws/lambda-api-gateway
+resource "aws_iam_role_policy_attachment" "lambda_policy" {
+  count      = length(var.names)
+  role       = aws_iam_role.lambda_role[count.index].name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
-
 
 data "archive_file" "zip_the_python_code" {
   count       = length(var.names)
@@ -55,13 +41,12 @@ data "archive_file" "zip_the_python_code" {
   output_path = "${var.source_dirs[count.index]}/${var.names[count.index]}.zip"
 }
 
-
 resource "aws_lambda_function" "tf_lambda_func" {
   count         = length(var.names)
   filename      = "${var.source_dirs[count.index]}/${var.names[count.index]}.zip"
   function_name = var.names[count.index]
-  role          = aws_iam_role.lambda_role.arn
+  role          = aws_iam_role.lambda_role[count.index].arn
   handler       = "index.lambda_handler"
   runtime       = var.runtimes[count.index]
-  depends_on    = [aws_iam_role_policy_attachment.attach_iam_policy_to_iam_role]
+  depends_on    = [aws_iam_role_policy_attachment.lambda_policy]
 }
