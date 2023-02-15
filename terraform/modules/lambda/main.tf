@@ -29,7 +29,7 @@ resource "aws_cloudwatch_log_group" "log_group" {
 # basic policy that allows lambdas to write to CloudWatch logs
 # https://developer.hashicorp.com/terraform/tutorials/aws/lambda-api-gateway
 resource "aws_iam_role_policy_attachment" "lambda_policy" {
-  count      = length(var.names)
+  # count      = length(var.names)
   role       = aws_iam_role.lambda_role[count.index].name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }

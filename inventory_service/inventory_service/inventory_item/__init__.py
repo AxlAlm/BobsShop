@@ -1,0 +1,1 @@
+from inventory_service.inventory_item.service import get_inventory_item

@@ -27,15 +27,11 @@ provider "aws" {
 
 
 
-module "test_lambda" {
+module "bobs_inventory_service_api" {
   source = "./modules/lambda"
 
-  service_name = "test_service"
-  names        = ["test_lambda"]
-  source_dirs  = ["../src/"]
+  service_name = "bobs_inventory_service"
+  names        = ["get_inventory_item"]
+  source_dirs  = ["../inventory_service/lambda_functions/get_inventory_item"]
   runtimes     = ["python3.9"]
-
-  # providers = {
-  #   aws.nested_provider_alias = aws.stockholm
-  # }
 }
