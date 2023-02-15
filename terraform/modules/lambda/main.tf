@@ -1,8 +1,7 @@
 
 
 resource "aws_iam_role" "lambda_role" {
-  count = length(var.names)
-  name  = "bs_${var.names[count.index]}_Lambda_Function_Role"
+  name = "${var.service_name}_Lambda_Function_Role"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -21,8 +20,9 @@ resource "aws_iam_role" "lambda_role" {
 # create a log group to store log messages
 # https://developer.hashicorp.com/terraform/tutorials/aws/lambda-api-gateway
 resource "aws_cloudwatch_log_group" "log_group" {
-  count             = length(var.names)
-  name              = "/aws/lambda/${var.names[count.index]}"
+  # count             = length(var.names)
+  # name              = "/aws/lambda/${var.names[count.index]}"
+  name              = "/aws/lambda/${var.service_name}"
   retention_in_days = 30
 }
 
@@ -30,7 +30,8 @@ resource "aws_cloudwatch_log_group" "log_group" {
 # https://developer.hashicorp.com/terraform/tutorials/aws/lambda-api-gateway
 resource "aws_iam_role_policy_attachment" "lambda_policy" {
   # count      = length(var.names)
-  role       = aws_iam_role.lambda_role[count.index].name
+  # role       = aws_iam_role.lambda_role[count.index].name
+  role       = aws_iam_role.lambda_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
@@ -45,7 +46,7 @@ resource "aws_lambda_function" "tf_lambda_func" {
   count         = length(var.names)
   filename      = "${var.source_dirs[count.index]}/${var.names[count.index]}.zip"
   function_name = var.names[count.index]
-  role          = aws_iam_role.lambda_role[count.index].arn
+  role          = aws_iam_role.lambda_role.arn
   handler       = "index.lambda_handler"
   runtime       = var.runtimes[count.index]
   depends_on    = [aws_iam_role_policy_attachment.lambda_policy]
