@@ -5,7 +5,7 @@ description = ""
 authors = ["Axel Almquist <axel@almquist.io>"]
 
 [tool.poetry.dependencies]
-python = "3.9.16"
+python = "3.9.5"
 pydantic = "1.10.4"
 
 [tool.poetry.dev-dependencies]

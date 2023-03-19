@@ -30,8 +30,9 @@ provider "aws" {
 module "bobs_inventory_service_api" {
   source = "./modules/lambda"
 
-  service_name = "bobs_inventory_service"
-  names        = ["get_inventory_item"]
-  source_dirs  = ["../inventory_service/lambda_functions/get_inventory_item"]
-  runtimes     = ["python3.9"]
+  service_name              = "bobs_inventory_service"
+  path_to_layer_zip         = "../inventory_service/package.zip"
+  names                     = ["get_inventory_item"]
+  paths_to_lambda_functions = ["../inventory_service/lambda_functions/get_inventory_item"]
+  runtimes                  = ["python3.9"]
 }

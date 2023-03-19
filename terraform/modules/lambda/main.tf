@@ -35,19 +35,30 @@ resource "aws_iam_role_policy_attachment" "lambda_policy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
-data "archive_file" "zip_the_python_code" {
+data "archive_file" "code_zip" {
   count       = length(var.names)
   type        = "zip"
-  source_dir  = var.source_dirs[count.index]
-  output_path = "${var.source_dirs[count.index]}/${var.names[count.index]}.zip"
+  source_dir  = var.paths_to_lambda_functions[count.index]
+  output_path = "${var.paths_to_lambda_functions[count.index]}/${var.names[count.index]}.zip"
 }
 
 resource "aws_lambda_function" "tf_lambda_func" {
   count         = length(var.names)
-  filename      = "${var.source_dirs[count.index]}/${var.names[count.index]}.zip"
+  filename      = "${var.paths_to_lambda_functions[count.index]}/${var.names[count.index]}.zip"
   function_name = var.names[count.index]
   role          = aws_iam_role.lambda_role.arn
   handler       = "index.lambda_handler"
-  runtime       = var.runtimes[count.index]
+  runtime       = var.runtime
+  timeout       = var.timeouts[count.index]
+  memory_size   = var.memory_sizes[count.index]
   depends_on    = [aws_iam_role_policy_attachment.lambda_policy]
+  layers        = ["${aws_lambda_layer_version.python37-pandas-layer.arn}"]
+}
+
+
+resource "aws_lambda_layer_version" "layer" {
+  filename            = var.path_to_layer_zip
+  layer_name          = "python-${var.service_name}-layer"
+  source_code_hash    = filebase64sha256(var.path_to_layer_zip)
+  compatible_runtimes = [var.runtime]
 }
